@@ -18,6 +18,7 @@ int main()
     //if NULL there is an error in getting pathname (buffer size should increase)
     if(!ret){
         printf("Couldn't get pathname\n");
+   	return -1;
     }
     //if not NULL then print the pathname
     else{
