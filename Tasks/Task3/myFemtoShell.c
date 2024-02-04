@@ -19,7 +19,11 @@ int main()
 
 	// Remove the trailing newline character
 	input[strcspn(input, "\n")] = '\0';
-
+	// Handling the input as newline
+	if(0==strlen(input)){
+	    printf("Please enter valid command\n");
+	    continue;
+	}
 	char *token;		//to save current token
 	char ret;		// to check for the success of operations
 	token = strtok(input, " ");
