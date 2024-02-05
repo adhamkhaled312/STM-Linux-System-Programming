@@ -11,7 +11,7 @@ gcc file_name.c -o file_name
 ### 1- mypwd
 to run
 ```bash
-./myecho
+./mypwd
 ```
 sample output:\
 ![VirtualBox_STM Training_03_02_2024_19_55_16](https://github.com/adhamkhaled312/STM_System_Linux_Programming/assets/105177075/e55ab267-da03-4d58-a020-bae231edb321)
