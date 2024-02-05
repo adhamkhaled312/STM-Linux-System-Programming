@@ -5,18 +5,21 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-extern char **environ;
+//extern char **environ;
 
 // Define a macro for maximum number of arguments
 #define ARG_MAX 20
 
-void parse(char *input, char *args[]);
+int args_number(char *input);
 int main()
 {
     // Declare a character array to store user input
     char *input = NULL;
     size_t n = 0;
-
+    // Save a copy of input
+    char *copy;
+    // to determine number of arguments 
+    int args_count;
     while (1) {
 	// Prompt the user to type something
 	printf("Type anything > ");
@@ -29,8 +32,30 @@ int main()
 	if (0 == strlen(input)) {
 	    continue;
 	}
-	char *args[ARG_MAX];	// array to save arguments of the command 
-	parse(input, args);	// parsing the command
+	copy = strdup(input);
+	args_count = args_number(copy);
+
+	/*
+	 * This part is for parsing the command and dividing it into arguments
+	 * dynamic allocation is used to be flexible with number of arguments
+	 * */
+	char **args;		// array to save arguments of the command 
+	char *token;	   //String to determine each token
+	args = (char **) malloc((args_count+1) * sizeof(char *)); // allocate 2d array in memory with size args_count +1
+	int i = 0;
+	//save each token in the array of args
+	token = strtok(input, " ");
+	args[i]=strdup(token);
+	while (i < args_count-1 && token != NULL) {
+	    i++;
+	    token = strtok(NULL, " ");
+	    args[i]=strdup(token);
+	    
+	}
+	//NULL in the last index of array (needed for exec function)
+	args[args_count]=NULL;
+	/********************************************************************/
+ 
 	char ret;		// to check for the success of operations
 	if (!strcmp(args[0], "pwd")) {
 	    //Define string to save the pathname 
@@ -60,7 +85,7 @@ int main()
 	} else if (!strcmp("echo", args[0])) {
 	    int i = 1;
 	    // Print the arguments starting from args[1] separated by space
-	    for (i; args[i] != NULL; i++) {
+	    for (i;i<args_count; i++) {
 		printf("%s ", args[i]);
 	    }
 	    // Print new line after finishing
@@ -96,24 +121,31 @@ int main()
 		    ("Failed to create new process for the external program\n");
 	    }
 	}
+	// Free all dynamically allocated memory
+	free(input);
+	input = NULL;
+	free(copy);
+	copy = NULL;
+        for(int i=1;i<=args_count;i++){
+	    free(args[i]);
+	}
+	free(args);
     }
-    free(input);
-    input = NULL;
     return 0;
 }
-
-/**
- * Function to parse the command into arguments
- * input: the command input string
- * args: array of strings to save the arguments
+/*
+ * Function to determine number of arguments in command
+ * input: the command string
+ * retVal: return number of arguments
  */
-void parse(char *input, char *args[])
+int args_number(char *input)
 {
-    int i = 0;
-    args[i] = strtok(input, " ");
-    while (i < ARG_MAX && args[i] != NULL) {
-	i++;
-	args[i] = strtok(NULL, " ");
+    char *token;
+    int number_arguments = 0;
+    token = strtok(input, " ");
+    while (token != NULL) {
+	token = strtok(NULL, " ");
+	number_arguments++;
     }
-    return;
+    return number_arguments;
 }
