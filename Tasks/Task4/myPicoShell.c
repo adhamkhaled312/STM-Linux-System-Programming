@@ -5,11 +5,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-//extern char **environ;
-
-// Define a macro for maximum number of arguments
-#define ARG_MAX 20
-
 int args_number(char *input);
 int main()
 {
