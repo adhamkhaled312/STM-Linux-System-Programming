@@ -4,14 +4,17 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+#include <sys/stat.h>
+#include <fcntl.h>
 
 int args_number(char *input);
-void parse(char *input, char ***args, int count);
-void pwd();
+void parse(char *input, char ***args, int count, int *input_redir,
+	   int *output_redir, int *error_redir);
+void pwd(char **args,int output_redir);
 void cd(char *path);
-void echo(int args_count, char **args);
-void external(char **args);
+void echo(char **args, int output_redir);
+void external(char **args, int input_redir, int output_redir,
+	      int error_redir);
 
 int main()
 {
@@ -25,8 +28,11 @@ int main()
     // to determine number of arguments 
     int args_count = 0;
     while (1) {
+	int input_redir = 0;
+	int output_redir = 0;
+	int error_redir = 0;
 	// Prompt the user to type something
-	printf("Type anything > ");
+	printf("Type anything >> ");
 
 	// Read input from the user using getline
 	int size = getline(&input, &n, stdin);
@@ -40,13 +46,11 @@ int main()
 	copy = strdup(input);	//make a copy of input command 
 	args_count = args_number(copy);	// count number of arguments needed to be allocated
 	char **args = NULL;
-	parse(input, &args, args_count);	//parse the input command into arguments
-
-
+	parse(input, &args, args_count, &input_redir, &output_redir, &error_redir);	//parse the input command into arguments
 	// The next part is for executing the commands
 	// we have built in commands so we will check on them first, if not found in them then execute external command
 	if (!strcmp(args[0], "pwd")) {
-	    pwd();
+	    pwd(args,output_redir);
 	}
 	// check if current command is cd
 	else if (!strcmp("cd", args[0])) {
@@ -54,16 +58,16 @@ int main()
 	}
 	// check if current command is echo     
 	else if (!strcmp("echo", args[0])) {
-	    echo(args_count, args);
+	    echo(args, output_redir);
 	}
 	//check if command is exit, get out of the shell
 	else if (!strcmp("exit", args[0])) {
 	    printf("Good Bye :)\n");
 	    break;
-	} 
+	}
 	//if the command is not supported then execute it's external program
 	else {
-	    external(args);
+	    external(args, input_redir, output_redir, error_redir);
 	}
 
 	// Free all dynamically allocated memory to avoid memory leaks
@@ -71,10 +75,13 @@ int main()
 	input = NULL;
 	free(copy);
 	copy = NULL;
-	for (int i = 1; i <= args_count; i++) {
-	    free(args[i]);
-	}
+	int i = 1;
+	//while (args[i]!=NULL){
+	//  free(args[i]);
+	///i++;
+//      }
 	free(args);
+
     }
     return 0;
 }
@@ -99,11 +106,13 @@ int args_number(char *input)
 /*
  * @brief parsing the command and dividing it into arguments.
  * 	  dynamic allocation is used to be flexible with number of arguments.
+ *	  parser also detect input/output redirections
  * @param input: The command string
  * @param args: Refrence to dynamic array of strings to save the arguments in
  * @param args count: The number of arguments
  **/
-void parse(char *input, char ***args, int args_count)
+void parse(char *input, char ***args, int args_count, int *input_redir,
+	   int *output_redir, int *error_redir)
 {
     char *token;		//String to determine each token
     *args = (char **) malloc((args_count + 1) * sizeof(char *));	// allocate 2d array in memory with size args_count +1
@@ -112,23 +121,38 @@ void parse(char *input, char ***args, int args_count)
     token = strtok(input, " ");
     (*args)[i] = strdup(token);
     while (i < args_count - 1 && token != NULL) {
-	i++;
 	token = strtok(NULL, " ");
-	(*args)[i] = strdup(token);
+	if (token == NULL)
+	    break;
+	if (!strcmp("<", token)) {
+	    token = strtok(NULL, " ");
+	    *input_redir = i + 1;
+	} else if (!strcmp(">", token)) {
+	    token = strtok(NULL, " ");
+	    *output_redir = i + 1;
+	}
+
+	else if (!strcmp("2<", token)) {
+	    token = strtok(NULL, " ");
+	    *error_redir = i + 1;
+	}
+	i++;
+	(*args)[i] = token;
 
     }
     //NULL in the last index of array (needed for exec function)
-    (*args)[args_count] = NULL;
+    i++;
+    (*args)[i] = NULL;
     return;
 
 }
 
 /*
  * @brief  execute built in pwd command
+ * @param output_redirection: used to detec output redirection
  */
-void pwd()
+void pwd(char **args,int output_redir)
 {
-
 
     //Define string to save the pathname 
     unsigned char buf[200];
@@ -143,26 +167,60 @@ void pwd()
     }
     //if not NULL then print the pathname
     else {
-	printf("%s\n", buf);
+	if(output_redir > 0){
+		
+	int fd =
+	    open(args[output_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
+	if (fd != -1) {
+	    args[output_redir] = NULL;
+	    dprintf(fd,"%s\n",buf);
+	    close(fd);
+	}
+	}
+	else{
+	    printf("%s\n", buf);
+	}
     }
     return;
 }
+
 /*
- * @brief to execute built in echo command
- * @param args_count: number of arguments in the command
+ * @brief to execute built in echo command supporting output redirection
+ * @param output_redir: used to detect if there is redirection
  * @param args: array of strings contains arguments
  */
-void echo(int args_count, char **args)
+void echo(char **args, int output_redir)
 {
-    int i = 1;
-    // Print the arguments starting from args[1] separated by space
-    for (i; i < args_count; i++) {
-	printf("%s ", args[i]);
+   //Check if there is output redirection
+    if (output_redir > 0) {
+	//if output redirection found, open the file needed and print the text in it using dprintf
+
+	int fd =
+	    open(args[output_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
+	if (fd != -1) {
+	    args[output_redir] = NULL;
+	    int i = 1;
+	    for (i; args[i] != NULL; i++) {
+		dprintf(fd, "%s ", args[i]);
+	    }
+	    dprintf(fd, "\n");
+	    close(fd);
+	}
     }
-    // Print new line after finishing
-    printf("\n");
+    //If there is no output redirection then print the text on the screen as usual
+    else {
+
+	int i = 1;
+	// Print the arguments starting from args[1] separated by space
+	for (i; args[i] != NULL; i++) {
+	    printf("%s ", args[i]);
+	}
+	// Print new line after finishing
+	printf("\n");
+    }
     return;
 }
+
 /*
  * @brief execute built in cd command
  * @param path: the directory path
@@ -178,10 +236,16 @@ void cd(char *path)
     }
     return;
 }
+
 /*
- *@brief to execute external commands (which is not included in built in commands)
+ * @brief to execute external commands (which is not included in built in commands), Supports redirections
+ * @param args: array of strings contains arguments of the command
+ * @param input_redir: used to detect if there is input redirection
+ * @param output_redir: used to detect if there is output redirection
+ * @param error_redir: used to detect if there is error_redir 
  */
-void external(char **args)
+void external(char **args, int input_redir, int output_redir,
+	      int error_redir)
 {
 
     // fork to create new process for the external program
@@ -197,8 +261,38 @@ void external(char **args)
     }
     //in case of child process , execute the process from external program
     else if (returned_pid == 0) {
-	execvp(args[0], args);
 
+	//first check if there is any redirection, if a redirection was found deal with it based on its type
+	if (input_redir > 0) {
+	    int fd = open(args[input_redir], O_RDONLY);
+	    if (fd != -1) {
+		close(0);
+		dup2(fd, 0);
+		close(fd);
+		args[input_redir] = '\0';
+	    }
+
+	} else if (output_redir > 0) {
+	    int fd =
+		open(args[output_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
+	    if (fd != -1) {
+		close(1);
+		dup2(fd, 1);
+		close(fd);
+		args[output_redir] = '\0';
+	    }
+	} else if (error_redir > 0) {
+
+	    int fd =
+		open(args[error_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
+	    if (fd != -1) {
+		close(2);
+		dup2(fd, 2);
+		close(fd);
+		args[error_redir] = '\0';
+	    }
+	}
+	execvp(args[0], args);
 	// in case of failure print error message and exit the process to return to the parent
 	printf("Please enter a valid command\n");
 	int exit_stat;
