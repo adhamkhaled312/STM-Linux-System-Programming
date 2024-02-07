@@ -10,7 +10,7 @@
 int args_number(char *input);
 void parse(char *input, char ***args, int count, int *input_redir,
 	   int *output_redir, int *error_redir);
-void pwd(char **args,int output_redir);
+void pwd(char **args, int output_redir);
 void cd(char *path);
 void echo(char **args, int output_redir);
 void external(char **args, int input_redir, int output_redir,
@@ -50,7 +50,7 @@ int main()
 	// The next part is for executing the commands
 	// we have built in commands so we will check on them first, if not found in them then execute external command
 	if (!strcmp(args[0], "pwd")) {
-	    pwd(args,output_redir);
+	    pwd(args, output_redir);
 	}
 	// check if current command is cd
 	else if (!strcmp("cd", args[0])) {
@@ -124,6 +124,7 @@ void parse(char *input, char ***args, int args_count, int *input_redir,
 	token = strtok(NULL, " ");
 	if (token == NULL)
 	    break;
+	//First check if there's redirection , save the index of it and don't store the symbol in args
 	if (!strcmp("<", token)) {
 	    token = strtok(NULL, " ");
 	    *input_redir = i + 1;
@@ -151,7 +152,7 @@ void parse(char *input, char ***args, int args_count, int *input_redir,
  * @brief  execute built in pwd command
  * @param output_redirection: used to detec output redirection
  */
-void pwd(char **args,int output_redir)
+void pwd(char **args, int output_redir)
 {
 
     //Define string to save the pathname 
@@ -167,17 +168,16 @@ void pwd(char **args,int output_redir)
     }
     //if not NULL then print the pathname
     else {
-	if(output_redir > 0){
-		
-	int fd =
-	    open(args[output_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
-	if (fd != -1) {
-	    args[output_redir] = NULL;
-	    dprintf(fd,"%s\n",buf);
-	    close(fd);
-	}
-	}
-	else{
+	if (output_redir > 0) {
+
+	    int fd =
+		open(args[output_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
+	    if (fd != -1) {
+		args[output_redir] = NULL;
+		dprintf(fd, "%s\n", buf);
+		close(fd);
+	    }
+	} else {
 	    printf("%s\n", buf);
 	}
     }
@@ -191,7 +191,7 @@ void pwd(char **args,int output_redir)
  */
 void echo(char **args, int output_redir)
 {
-   //Check if there is output redirection
+    //Check if there is output redirection
     if (output_redir > 0) {
 	//if output redirection found, open the file needed and print the text in it using dprintf
 
