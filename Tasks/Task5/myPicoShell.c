@@ -272,7 +272,7 @@ void external(char **args, int input_redir, int output_redir,
 		args[input_redir] = '\0';
 	    }
 
-	} else if (output_redir > 0) {
+	}if (output_redir > 0) {
 	    int fd =
 		open(args[output_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
 	    if (fd != -1) {
@@ -281,7 +281,7 @@ void external(char **args, int input_redir, int output_redir,
 		close(fd);
 		args[output_redir] = '\0';
 	    }
-	} else if (error_redir > 0) {
+	}if (error_redir > 0) {
 
 	    int fd =
 		open(args[error_redir], O_RDWR | O_CREAT | O_TRUNC, 0644);
