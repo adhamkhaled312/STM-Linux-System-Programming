@@ -76,10 +76,10 @@ int main()
 	free(copy);
 	copy = NULL;
 	int i = 1;
-	//while (args[i]!=NULL){
-	//  free(args[i]);
-	///i++;
-//      }
+	while (args[i]!=NULL){
+	  free(args[i]);
+	i++;
+      }
 	free(args);
 
     }
@@ -138,7 +138,7 @@ void parse(char *input, char ***args, int args_count, int *input_redir,
 	    *error_redir = i + 1;
 	}
 	i++;
-	(*args)[i] = token;
+	(*args)[i] =strdup(token);
 
     }
     //NULL in the last index of array (needed for exec function)
