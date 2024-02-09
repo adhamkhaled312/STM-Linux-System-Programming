@@ -75,10 +75,9 @@ int main()
 	input = NULL;
 	free(copy);
 	copy = NULL;
-	int i = 1;
-	while (args[i]!=NULL){
+	int i = 0;
+	for(i;i<args_count;i++){
 	  free(args[i]);
-	i++;
       }
 	free(args);
 
