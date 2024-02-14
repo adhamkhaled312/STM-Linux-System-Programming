@@ -6,7 +6,7 @@
 To compile the program, execute the following command:
 ```bash
 gcc myfdisk.c -o myfdisk
-./myfdisk /dev/device_name
+sudo ./myfdisk /dev/device_name
 ```
 
 ### Sample output
