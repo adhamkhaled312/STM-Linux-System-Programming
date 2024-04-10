@@ -132,7 +132,7 @@ void parse(char *input, char ***args, int args_count, int *input_redir,
 	    *output_redir = i + 1;
 	}
 
-	else if (!strcmp("2<", token)) {
+	else if (!strcmp("2>", token)) {
 	    token = strtok(NULL, " ");
 	    *error_redir = i + 1;
 	}
