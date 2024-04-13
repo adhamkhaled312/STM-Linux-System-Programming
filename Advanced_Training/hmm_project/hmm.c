@@ -9,7 +9,7 @@ static block_t *firstBlock=NULL;
 void *HmmAlloc(size_t size){
     block_t *curr;
     void *retVal=NULL;
-    int temp;
+    char temp;
     // if there is no block assigned (the list is still empty)
     if(!firstBlock){
         //initialize the heap by allocating INIT_PAGE_ALLOC pages in it
@@ -26,11 +26,9 @@ void *HmmAlloc(size_t size){
         }
     }
     else{
-        // traverse free list 
+        // traverse free list to find the suitable block
         curr=firstBlock;
-        while((curr->next)!=NULL && ((curr->size)<(size+sizeof(block_t)) || (curr->status)==USED_BLOCK)){
-            curr=curr->next;
-        }
+        TRAVERSE_LIST(curr,size);
         //if a block with found the same size allocate it (mark it as not free)
         if((curr->size)==size){
             SET_BLOCK_USED(curr);
@@ -43,9 +41,17 @@ void *HmmAlloc(size_t size){
         }
         //no block is found in the free list then we need to allocate new space in heap
         else{
-            
+            temp=new_alloc(curr,VM_PAGE_SIZE*INIT_PAGE_ALLOC);
+            if(temp==-1){
+                retVal=NULL;
+            }
+            else{
+                curr=curr->next;
+                split(curr->next,size);
+                retVal=(void *)((void*)curr+sizeof(block_t));
+            }
         }
-        }
+    }
     return retVal;
 }
 void HmmFree(void *ptr){
