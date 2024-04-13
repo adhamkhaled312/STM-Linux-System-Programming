@@ -4,7 +4,7 @@
 /* Version   : V01                                    */
 /******************************************************/
 #include "hmm.h"
-static block_t *firstBlock=NULL;
+ block_t *firstBlock=NULL;
 
 void *HmmAlloc(size_t size){
     block_t *curr;
@@ -15,7 +15,7 @@ void *HmmAlloc(size_t size){
         //initialize the heap by allocating INIT_PAGE_ALLOC pages in it
         temp=init(&firstBlock,VM_PAGE_SIZE*INIT_PAGE_ALLOC);
         //if error occured during allocating set retVal to null
-        if(temp==-1){
+        if(-1==temp){
             retVal=NULL;
         }
         else{
@@ -30,7 +30,7 @@ void *HmmAlloc(size_t size){
         curr=firstBlock;
         TRAVERSE_LIST(curr,size);
         //if a block with found the same size allocate it (mark it as not free)
-        if((curr->size)==size){
+        if(size==(curr->size)){
             SET_BLOCK_USED(curr);
             retVal=(void*)((void*)curr+sizeof(block_t));
         }
@@ -42,12 +42,15 @@ void *HmmAlloc(size_t size){
         //no block is found in the free list then we need to allocate new space in heap
         else{
             temp=new_alloc(curr,VM_PAGE_SIZE*INIT_PAGE_ALLOC);
-            if(temp==-1){
+            if(-1==temp){
                 retVal=NULL;
             }
             else{
-                curr=curr->next;
-                split(curr->next,size);
+                //if the current block is used then a new block is allocated
+                if(USED_BLOCK==curr->status){
+                    curr=curr->next;
+                }
+                split(curr,size);
                 retVal=(void *)((void*)curr+sizeof(block_t));
             }
         }
