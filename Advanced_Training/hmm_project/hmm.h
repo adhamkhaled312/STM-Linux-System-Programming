@@ -27,7 +27,13 @@
  */
 #define INIT_PAGE_ALLOC     33
 /*----------------------Functions Declarations----------------------*/
-
+/**
+ * @brief function allocates bytes in heap and returns a pointer to the allocated memory
+ *        The memory is not initialized.  If size is 0, then malloc() returns NULL
+ * 
+ * @param size number of bytes to be allocated
+ * @return void* pointer to the allocated memory, return NULL if the request is failed
+ */
 void *HmmAlloc(size_t size);
 void HmmFree(void *ptr);
 #endif
