@@ -31,6 +31,14 @@
  * 
  */
 #define SET_BLOCK_FREE(BLOCK)    (BLOCK->status=FREE_BLOCK)
+/**
+ * @brief macro function to traverse the list to find the suitbale block for the desired size
+ * 
+ */
+#define TRAVERSE_LIST(CURR,SIZE)                                                                                \
+    while ((CURR->next) != NULL && ((CURR->size) < (SIZE + sizeof(block_t)) || (CURR->status) == USED_BLOCK)) { \
+        CURR = CURR->next;                                                                                      \
+    } 
 
 /* ----------------Data Types Declarations----------------*/
 /**
@@ -52,9 +60,10 @@ typedef struct block
  * 
  * @param list pointer to the first entry of the list
  * @param size the size to be allocated at the beginning
- * @return int the return status -1:error 0:no error
+ * @return char the return status -1:error 0:no error
  */
-int init(block_t **list,size_t size);
+char init(block_t **list,size_t size);
+
 /**
  * @brief used to split a block of data into two blocks
  *        it's used in case of finding a block which is bigger than block needed
@@ -62,3 +71,12 @@ int init(block_t **list,size_t size);
  * @param size the size of the block after splitting
  */
 void split(block_t *fitting,size_t size);
+
+/**
+ * @brief 
+ * 
+ * @param list 
+ * @param size 
+ * @return char 
+ */
+char new_alloc(block_t *list,size_t size);
