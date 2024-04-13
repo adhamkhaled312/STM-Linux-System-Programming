@@ -25,8 +25,7 @@
  * @brief number of pages to be allocated when using sbrk to decrease the number of calls to sbrk
  * 
  */
-#define INIT_PAGE_ALLOC     5
-
+#define INIT_PAGE_ALLOC     33
 /*----------------------Functions Declarations----------------------*/
 
 void *HmmAlloc(size_t size);
