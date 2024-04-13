@@ -9,11 +9,11 @@
  * 
  * @param list pointer to the first entry of the list
  * @param size the size to be allocated at the beginning
- * @return int the return status -1:error 0:no error
+ * @return char the return status -1:error 0:no error
  */
-int init(block_t **list,size_t size){
-    int retVal=0;
-    (*list)=(void *)sbrk(size+sizeof(block_t));
+char init(block_t **list,size_t size){
+    char retVal=0;
+    (*list)=(void *)sbrk(100);
     if(list==(void*)-1){
         perror("Can't initialize the heap");
         retVal=-1;
@@ -21,7 +21,7 @@ int init(block_t **list,size_t size){
     else{
         (*list)->next=NULL;
         (*list)->prev=NULL;
-        (*list)->size=size;
+        (*list)->size=(size-sizeof(block_t));
         (*list)->status=FREE_BLOCK;
         retVal=0;
     }
@@ -43,4 +43,21 @@ void split(block_t *fitting,size_t size){
     fitting->next=new;
     fitting->size=size;
     fitting->status=USED_BLOCK;
+}
+char new_alloc(block_t *list,size_t size){
+    char retVal=0;
+    block_t *new=(void *)sbrk(size);
+    if(new==(void *)-1){
+        perror("Can't allocate new space");
+        retVal=-1;
+    }
+    else{
+        list->next=new;
+        new->next=NULL;
+        new->prev=list;
+        new->size=size-sizeof(block_t);
+        new->status=FREE_BLOCK;
+        retVal=0;
+    }
+    return retVal;
 }
