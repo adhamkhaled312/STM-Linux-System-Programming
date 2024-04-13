@@ -13,8 +13,8 @@
  */
 char init(block_t **list,size_t size){
     char retVal=0;
-    (*list)=(void *)sbrk(100);
-    if(list==(void*)-1){
+    (*list)=(void *)sbrk(size);
+    if((void*)-1==list){
         perror("Can't initialize the heap");
         retVal=-1;
     }
@@ -35,29 +35,58 @@ char init(block_t **list,size_t size){
  * @param size 
  */
 void split(block_t *fitting,size_t size){
-    block_t *new=(void*)((void*)fitting+size+sizeof(block_t));
-    new->size=(fitting->size)-size-sizeof(block_t);
-    new->status=FREE_BLOCK;
-    new->next=fitting->next;
-    new->prev=fitting;
-    fitting->next=new;
-    fitting->size=size;
+    //if the remaining part will not be enough for metadata then don't split and mark block as used
+    if(sizeof(block_t)<=fitting->size-size){
+        //allocate new block after current block metadata and data
+        block_t *new=(void*)((void*)fitting+size+sizeof(block_t));
+        //configure the meta data of the new block
+        new->size=(fitting->size)-size-sizeof(block_t);
+        new->status=FREE_BLOCK;
+        new->next=fitting->next;
+        new->prev=fitting;
+        //configure the metadata of the current block
+        fitting->next=new;
+        fitting->size=size;
+    }
     fitting->status=USED_BLOCK;
 }
+/**
+ * @brief used to allocate new space in heap if the current allocated space isn't enough
+ *        first check if the block is free then extend it, if used then allocate new space
+ * @param list pointer to the last block in the current free list
+ * @param size the size to be allocated
+ * @return char the return status -1:error 0:no error
+ */
 char new_alloc(block_t *list,size_t size){
     char retVal=0;
-    block_t *new=(void *)sbrk(size);
-    if(new==(void *)-1){
-        perror("Can't allocate new space");
-        retVal=-1;
+    //if the last block in the list is free then extend it so it can hold the data
+    if(FREE_BLOCK==list->status){
+        void*temp=sbrk(size);
+        if((void *)-1==temp){
+            perror("Can't allocate new space");
+            retVal=-1;
+    }
+        else{
+            //the size of the block will be the current size + the extended space size
+            list->size+=size;
+            retVal=0;
+    }
     }
     else{
-        list->next=new;
-        new->next=NULL;
-        new->prev=list;
-        new->size=size-sizeof(block_t);
-        new->status=FREE_BLOCK;
-        retVal=0;
+        //if the last block was a used block then allocate new space
+        block_t *new=(void*)sbrk(size);
+        if((void*)-1==new){
+            perror("Can't allocate new space");
+            retVal=-1;
+        }
+        else{
+            //configure new block metadata and point from the current block to it
+            new->prev=list;
+            new->size=size-sizeof(block_t);
+            new->next=NULL;
+            new->status=FREE_BLOCK;
+            list->next=new;
+        }
     }
     return retVal;
 }
