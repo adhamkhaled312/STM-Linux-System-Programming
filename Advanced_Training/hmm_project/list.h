@@ -73,10 +73,10 @@ char init(block_t **list,size_t size);
 void split(block_t *fitting,size_t size);
 
 /**
- * @brief 
- * 
- * @param list 
- * @param size 
- * @return char 
+ * @brief used to allocate new space in heap if the current allocated space isn't enough
+ *        first check if the block is free then extend it, if used then allocate new space
+ * @param list pointer to the last block in the current free list
+ * @param size the size to be allocated
+ * @return char the return status -1:error 0:no error
  */
 char new_alloc(block_t *list,size_t size);
