@@ -5,7 +5,7 @@
 /******************************************************/
 #include "hmm.h"
 // Pointer to the first block allocated in the heap 
-static block_t *firstBlock=NULL;
+ block_t *firstBlock=NULL;
 
 /**
  * @brief function allocates bytes in heap and returns a pointer to the allocated memory
@@ -73,5 +73,17 @@ void *HmmAlloc(size_t size){
     return retVal;
 }
 void HmmFree(void *ptr){
+    //if ptr is NULL no operation is performed
+    if(NULL==ptr){
+        return;
+    }
+    else{
+        //mark the block as free
+        block_t *block=ptr;
+        block--;
+        SET_BLOCK_FREE(block);
+        //merge the block if possible
+        merge(block);
 
+    }
 }
