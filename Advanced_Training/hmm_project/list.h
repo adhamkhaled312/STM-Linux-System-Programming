@@ -80,3 +80,4 @@ void split(block_t *fitting,size_t size);
  * @return char the return status -1:error 0:no error
  */
 char new_alloc(block_t *list,size_t size);
+void merge(block_t* block);

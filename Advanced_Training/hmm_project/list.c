@@ -90,3 +90,22 @@ char new_alloc(block_t *list,size_t size){
     }
     return retVal;
 }
+void merge(block_t* block){
+    //if the next block is also free block merge both blocks
+    if(NULL!=(block->next) && FREE_BLOCK==(block->next)->status){
+        //size of current block increased by size of the next block and its metadata
+        block->size+=((block->next)->size)+sizeof(block_t);
+        //remove the next block
+        block->next->next->prev=block;
+        block->next=block->next->next;
+    }
+    //if the previous block is also free block merge both blocks
+    if(NULL!=block->prev && FREE_BLOCK==(block->prev)->status){
+        //size of previous  block increased by size of the current block and its metadata
+        block->prev->size+=block->size+sizeof(block_t);
+        //remove current block
+        block->prev->next=block->next;
+        block->next->prev=block->prev;
+
+    }
+}
