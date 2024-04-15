@@ -13,10 +13,10 @@
 /*----------------------Macro Declarations----------------------*/
 
 /**
- * @brief if we have a contigous free SUFF_DEC_BREAK kB block at top of heap then decrease program break
+ * @brief if we have a contigous free SUFF_DEC_BREAK Bytes block at top of heap then decrease program break
  *        this is used to decrease the number of calls to sbrk
  */
-#define SUFF_DEC_BREAK      128
+#define SUFF_DEC_BREAK      128*1024
 /**
  * @brief size of virtal memory page in linux is 4k
  */
