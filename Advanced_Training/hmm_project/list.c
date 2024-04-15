@@ -47,6 +47,10 @@ void split(block_t *fitting,size_t size){
         //configure the metadata of the current block
         fitting->next=new;
         fitting->size=size;
+        //link the next block of the new block with it (only if it exist) 
+        if(NULL!=new->next){
+            new->next->prev=new;
+        }
     }
     fitting->status=USED_BLOCK;
 }
@@ -96,7 +100,10 @@ void merge(block_t* block){
         //size of current block increased by size of the next block and its metadata
         block->size+=((block->next)->size)+sizeof(block_t);
         //remove the next block
-        block->next->next->prev=block;
+        //if the next block isn't the last one link current block with the next of next
+        if(NULL!=block->next->next){
+            block->next->next->prev=block;
+        }
         block->next=block->next->next;
     }
     //if the previous block is also free block merge both blocks
