@@ -4,6 +4,8 @@
 /* Version   : V01                                    */
 /******************************************************/
 #include "list.h"
+static char moveBrkDown(block_t *block,size_t decSize);
+
 /**
  * @brief initialize the list if there's is no allocation before
  * 
@@ -90,11 +92,20 @@ char new_alloc(block_t *list,size_t size){
             new->next=NULL;
             new->status=FREE_BLOCK;
             list->next=new;
+            retVal=0;
         }
     }
     return retVal;
 }
-void merge(block_t* block){
+/**
+ * @brief checks if the free block can be merged with the next or previous free block (if there exist)
+ *        it's also responsible for decreasing the program break if that can be done 
+ * @param block pointer to the block to check on
+ * @param decSize the minimum size of the free block needed to decrease the program break
+ * @return char the return status -1:error 0:no error
+ */
+char merge(block_t* block,size_t decSize){
+    char retVal=0;
     //if the next block is also free block merge both blocks
     if(NULL!=(block->next) && FREE_BLOCK==(block->next)->status){
         //size of current block increased by size of the next block and its metadata
@@ -112,7 +123,57 @@ void merge(block_t* block){
         block->prev->size+=block->size+sizeof(block_t);
         //remove current block
         block->prev->next=block->next;
-        block->next->prev=block->prev;
-
+        if(NULL!=block->next){
+            block->next->prev=block->prev;
+        }
+        block=block->prev;
     }
+    // part responsible for decreasing program break if possible
+
+    //if block size is greater than or equal the size given
+    //then decrease sbrk to release the space to the kernel
+    if(NULL==block->next && FREE_BLOCK==block->status && block->size>=decSize){
+        retVal=moveBrkDown(block,decSize);
+    }
+    return retVal;
+}
+/**
+ * @brief helper function to decrease the program break
+ * 
+*/
+static char moveBrkDown(block_t *block,size_t decSize){
+    void *temp;
+    char retVal=0;
+    //move sbrk down with sufficient multiple of decSize 
+    // in order not to call sbrk on the next free
+    // and also leave some space (if that can be done) so next malloc may not call sbrk
+    size_t remaining=block->size-((block->size)/decSize)*decSize;
+    //if the block size is exactly size multiple of decSize
+    //remove the last block
+    if(0==remaining){
+        block->prev->next=NULL;
+        temp=sbrk(-((((block->size)/decSize)*decSize)+sizeof(block_t)));
+        if((void *)-1==temp){
+            perror("Can't decrease program break");
+            retVal=-1;
+        }
+        else{
+            retVal=0;
+        }
+    }
+    //if the remaining size isn't 0 
+    //just change the size of last block
+    else{
+        block->size=remaining;
+        temp=sbrk(-(((block->size)/decSize)*decSize));
+            if((void *)-1==temp){
+            perror("Can't decrease program break");
+            retVal=-1;
+        }
+        else{
+            retVal=0;
+        }
+    }
+    
+    return retVal;
 }
