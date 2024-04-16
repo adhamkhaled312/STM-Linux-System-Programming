@@ -6,7 +6,7 @@
 #include "hmm.h"
 // Pointer to the first block allocated in the heap 
  block_t *firstBlock=NULL;
-
+ 
 /**
  * @brief function allocates bytes in heap and returns a pointer to the allocated memory
  *        The memory is not initialized.  If size is 0, then malloc() returns NULL
@@ -82,8 +82,8 @@ void HmmFree(void *ptr){
         block_t *block=ptr;
         block--;
         SET_BLOCK_FREE(block);
-        //merge the block if possible
-        merge(block);
-
+        //merge the block if possible 
+        //also check if the program break needs to be decreased to release memory to kernel
+        merge(block,SUFF_DEC_BREAK);
     }
 }
