@@ -175,10 +175,7 @@ static Std_ReturnType moveBrkDown(block_t *block,size_t decSize){
     //if the remaining size isn't 0 
     //just change the size of last block
     else{
-        //printf("\n%p    %p    %li    %li",block,sbrk(0),block->size,decValue);
         block->size=remaining;
-        //getchar();
-       // printf("    %li\n",block->size);
         temp=sbrk(-(decValue));
             if((void *)-1==temp){
             retVal=E_NOT_OK;
