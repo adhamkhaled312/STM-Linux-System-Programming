@@ -26,6 +26,12 @@
  * 
  */
 #define INIT_PAGE_ALLOC     33
+
+/**
+ * @brief minumum amount of memory allocated on sbrk call
+ * 
+ */
+#define ALLOC_SPACE          (VM_PAGE_SIZE*INIT_PAGE_ALLOC)
 /*----------------------Functions Declarations----------------------*/
 /**
  * @brief function allocates bytes in heap and returns a pointer to the allocated memory
@@ -35,6 +41,11 @@
  * @return void* pointer to the allocated memory, return NULL if the request is failed
  */
 void *HmmAlloc(size_t size);
+/**
+ * @brief 
+ * 
+ * @param ptr 
+ */
 void HmmFree(void *ptr);
 #endif
 

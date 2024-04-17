@@ -17,18 +17,20 @@
 void *HmmAlloc(size_t size){
     block_t *curr;
     void *retVal=NULL;
-    char temp;
+    Std_ReturnType temp;
     //if size is zero retrn NULL
     if(0==size){
         retVal=NULL;
     }
     else{
+        
         // if there is no block assigned (the list is still empty)
         if(!firstBlock){
-            //initialize the heap by allocating INIT_PAGE_ALLOC pages in it
-            temp=init(&firstBlock,VM_PAGE_SIZE*INIT_PAGE_ALLOC);
+            //initialize the heap by allocating multiple of ALLOC_SPACE pages in it
+            //that handles if the user entered very big size
+            temp=init(&firstBlock,((size/ALLOC_SPACE)+1)*ALLOC_SPACE);
             //if error occured during allocating set retVal to null
-            if(-1==temp){
+            if(E_NOT_OK==temp){
                 retVal=NULL;
             }
             else{
@@ -54,8 +56,8 @@ void *HmmAlloc(size_t size){
             }
             //no block is found in the free list then we need to allocate new space in heap
             else{
-                temp=new_alloc(curr,VM_PAGE_SIZE*INIT_PAGE_ALLOC);
-                if(-1==temp){
+                temp=new_alloc(curr,((size/ALLOC_SPACE)+1)*ALLOC_SPACE);
+                if(E_NOT_OK==temp){
                     retVal=NULL;
                 }
                 else{
