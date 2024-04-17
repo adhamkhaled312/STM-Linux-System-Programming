@@ -19,6 +19,17 @@
  * 
  */
 #define USED_BLOCK  1
+
+/**
+ * @brief  The function is done successfully
+ *
+ */
+#define E_OK        ((Std_ReturnType)0x01)
+/**
+ * @brief The function had issue to perform its action  
+ * 
+ */
+#define E_NOT_OK    ((Std_ReturnType)0x00)
 /*----------------------Macro Functions Declarations----------------------*/
 /**
  * @brief macro function to convert free block into used block
@@ -54,15 +65,24 @@ typedef struct block
    
 }block_t;
 
+/**
+ * @brief Std_ReturnType status of the process
+ *         (E_OK): The function is done successfully
+ *         (E_NOT_OK): The function had issue to perform this action  
+ */
+typedef char Std_ReturnType;
+
 /* ----------------Functions Declarations----------------*/
 /**
  * @brief initialize the list if there's is no allocation before
  * 
  * @param list pointer to the first entry of the list
  * @param size the size to be allocated at the beginning
- * @return char the return status -1:error 0:no error
+ * @return Std_ReturnType status of the process
+ *         (E_OK): The function is done successfully
+ *         (E_NOT_OK): The function had issue to perform this action  
  */
-char init(block_t **list,size_t size);
+Std_ReturnType init(block_t **list,size_t size);
 
 /**
  * @brief used to split a block of data into two blocks
@@ -77,14 +97,15 @@ void split(block_t *fitting,size_t size);
  *        first check if the block is free then extend it, if used then allocate new space
  * @param list pointer to the last block in the current free list
  * @param size the size to be allocated
- * @return char the return status -1:error 0:no error
+ * @return Std_ReturnType status of the process
+ *         (E_OK): The function is done successfully
+ *         (E_NOT_OK): The function had issue to perform this action  
  */
-char new_alloc(block_t *list,size_t size);
+Std_ReturnType new_alloc(block_t *list,size_t size);
 /**
  * @brief checks if the free block can be merged with the next or previous free block (if there exist)
  *        it's also responsible for decreasing the program break if that can be done 
  * @param block pointer to the block to check on
  * @param decSize the minimum size of the free block needed to decrease the program break
- * @return char the return status -1:error 0:no error
  */
-char merge(block_t* block,size_t decSize);
+void merge(block_t* block,size_t decSize);
