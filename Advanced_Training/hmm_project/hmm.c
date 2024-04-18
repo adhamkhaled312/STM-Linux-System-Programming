@@ -45,12 +45,12 @@ void *HmmAlloc(size_t size){
             curr=firstBlock;
             TRAVERSE_LIST(curr,size);
             //if a block with found the same size allocate it (mark it as not free)
-            if(size==(curr->size)){
+            if(size==(curr->size)&& FREE_BLOCK==curr->status){
                 SET_BLOCK_USED(curr);
                 retVal=(void*)((void*)curr+sizeof(block_t));
             }
             //if a block found with size greater than needed and has enough extra space for meta data
-            else if((curr->size)>size+sizeof(block_t)){
+            else if((curr->size)>size+sizeof(block_t) && FREE_BLOCK==curr->status){
                 split(curr,size);
                 retVal=(void*)((void*)curr+sizeof(block_t));
             }
@@ -74,6 +74,14 @@ void *HmmAlloc(size_t size){
     
     return retVal;
 }
+/**
+ * @brief The free() function frees the memory space pointed to by ptr,
+ *        which must have been returned by a previous call to malloc(), calloc(), or realloc().  
+ *        Otherwise, or  if  free(ptr)  has  already been called before, undefined behavior occurs.  
+ *        If ptr is NULL, no operation is performed.
+ * 
+ * @param ptr pointer to the space to be freed
+ */
 void HmmFree(void *ptr){
     //if ptr is NULL no operation is performed
     if(NULL==ptr){
@@ -83,9 +91,38 @@ void HmmFree(void *ptr){
         //mark the block as free
         block_t *block=ptr;
         block--;
+        // if the block is already free don't do anything
+        if(FREE_BLOCK==block->status){
+            return;
+        }
         SET_BLOCK_FREE(block);
         //merge the block if possible 
         //also check if the program break needs to be decreased to release memory to kernel
         merge(block,SUFF_DEC_BREAK);
     }
+}
+void *HmmCalloc(size_t nmemb, size_t size){
+    void *retVal;
+    if(0==nmemb || 0==size){
+        retVal=NULL;
+    }
+    else if(nmemb*size<0){
+        perror("Overflow occured");
+        retVal=NULL;
+    }
+    else{
+        retVal=HmmAlloc(nmemb*size);
+        memset(retVal,0,nmemb*size);
+    }
+    return retVal;
+}
+void *HmmRealloc(void *ptr, size_t size){
+    void *retVal;
+    block_t *temp=ptr;
+    temp--;
+    size_t oldSize=temp->size;
+    HmmFree(ptr);
+    retVal=HmmAlloc(size);
+    memcpy(retVal,ptr,oldSize);
+
 }
