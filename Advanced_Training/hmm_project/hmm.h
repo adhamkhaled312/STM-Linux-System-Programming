@@ -9,7 +9,7 @@
 /*----------------------Includes----------------------*/
 #include "list.h"
 #include <unistd.h>
-
+#include <string.h>
 /*----------------------Macro Declarations----------------------*/
 
 /**
@@ -42,10 +42,16 @@
  */
 void *HmmAlloc(size_t size);
 /**
- * @brief 
+ * @brief The free() function frees the memory space pointed to by ptr,
+ *        which must have been returned by a previous call to malloc(), calloc(), or realloc().  
+ *        Otherwise, or  if  free(ptr)  has  already been called before, undefined behavior occurs.  
+ *        If ptr is NULL, no operation is performed.
  * 
- * @param ptr 
+ * @param ptr pointer to the space to be freed
  */
 void HmmFree(void *ptr);
+void *HmmCalloc(size_t nmemb, size_t size);
+void *HmmRealloc(void *ptr, size_t size);
+
 #endif
 
