@@ -30,6 +30,7 @@
  * 
  */
 #define E_NOT_OK    ((Std_ReturnType)0x00)
+
 /*----------------------Macro Functions Declarations----------------------*/
 /**
  * @brief macro function to convert free block into used block
@@ -47,7 +48,7 @@
  * 
  */
 #define TRAVERSE_LIST(CURR,SIZE)                                                                                \
-    while ((CURR->next) != NULL && ((CURR->size) < (SIZE + sizeof(block_t)) || (CURR->status) == USED_BLOCK)) { \
+    while (((CURR->size) < (SIZE + sizeof(block_t)) || (CURR->status) == USED_BLOCK) && (CURR->next) != NULL) { \
         CURR = CURR->next;                                                                                      \
     } 
 
