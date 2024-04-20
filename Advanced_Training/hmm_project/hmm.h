@@ -27,7 +27,7 @@
  */
 #define INIT_PAGE_ALLOC     33
 
-/**s
+/**
  * @brief minumum amount of memory allocated on sbrk call
  * 
  */
@@ -68,7 +68,7 @@ void *HmmCalloc(size_t nmemb, size_t size);
  * 
  * @param ptr pointer to the memory block to change its size
  * @param size the new size wanted
- * @return void* pointer to the new block allocated
+ * @return void* pointer to the new allocated memory, return NULL if the request is failed
  */
 void *HmmRealloc(void *ptr, size_t size);
 
