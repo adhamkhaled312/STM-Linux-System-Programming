@@ -4,29 +4,29 @@
 #include <string.h>
 #include <unistd.h>
 extern block_t *firstBlock;
+void * malloc(size_t size)
+{
+    return HmmAlloc(size);
+}
+
+void free(void *ptr)
+{
+    HmmFree(ptr);
+}
+
+void *calloc(size_t nmemb, size_t size)
+{
+	return HmmCalloc(nmemb,size);
+}
+
+void *realloc(void *ptr, size_t size)
+{
+	return HmmRealloc(ptr,size);
+}
 void merge_test();
 void alloc_in_middle();
+void dec_progbreak();
 int main(){
-    void*before=sbrk(0);
-    
-    char *ptr[1000];
-    for(int i=0;i<1000;i++){
-        ptr[i]=HmmAlloc(10240);
-        if(ptr[i]==NULL)
-            printf("error");
-    }
-    void*after=sbrk(0);
-    for (int j = 1 - 1; j < 1000; j += 2)
-        HmmFree(ptr[j]);
-    void* after_free=sbrk(0);
-    printf("Initial program break: %10p\n", before);
-    printf("program break is now : %10p\n", after);
-    printf("After free(), program break is: %10p\n", after);
-    block_t *curr=firstBlock;
-    while(NULL!=curr){
-        printf("%10p    %10p    %10p    %10li    %10i\n",curr,curr->next,curr->prev,curr->size,curr->status);
-        curr=curr->next;
-    }
 }
 
 
@@ -129,4 +129,25 @@ void alloc_in_middle(){
         curr=curr->next;
     }
     printf("\n");
+}
+/**
+ * @brief test the decreasing of program break
+ * 
+ */
+void dec_progbreak(){
+    long int *ptr6=(long int*)malloc(50);
+    long int *ptr1=(long int*)malloc(100);
+    long int *ptr2=(long int*)malloc(27);
+    long int *ptr3=(long int*)malloc(600);
+    long int *ptr4=(long int*)malloc(97);
+    long int *ptr5=(long int*)malloc(72000);
+    void* pb1=sbrk(0);
+    free(ptr6);
+    free(ptr5);
+    free(ptr4);
+    free(ptr3);
+    free(ptr2);
+    free(ptr1);
+    void *pb2=sbrk(0);
+    printf("program break decreased by %10ld\n",pb1-pb2);
 }
