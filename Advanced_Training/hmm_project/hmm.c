@@ -5,7 +5,7 @@
 /******************************************************/
 #include "hmm.h"
 // Pointer to the first block allocated in the heap 
- block_t *firstBlock=NULL;
+block_t *firstBlock=NULL;
  
 /**
  * @brief function allocates bytes in heap and returns a pointer to the allocated memory
@@ -101,28 +101,63 @@ void HmmFree(void *ptr){
         merge(block,SUFF_DEC_BREAK);
     }
 }
+/**
+ * @brief allocates  memory for an array of nmemb elements of size bytes each and returns a pointer to the allocated memory.
+ *        The memory is set to zero.  If nmemb or size is 0 then returns NULL.
+ *  
+ * @param nmemb number of memory spaces want to allocate  
+ * @param size the size of each memory space to allocate
+ * @return void* pointer to the allocated memory, return NULL if the request is failed
+ */
 void *HmmCalloc(size_t nmemb, size_t size){
+    //if any of the them are 0 return NULL
     void *retVal;
     if(0==nmemb || 0==size){
         retVal=NULL;
     }
+    //if there multiplication caused overflow return NULL
     else if(nmemb*size<0){
         perror("Overflow occured");
         retVal=NULL;
     }
+    // if everything is ok, then allocate wanted space and initialize it with 0
     else{
         retVal=HmmAlloc(nmemb*size);
         memset(retVal,0,nmemb*size);
     }
     return retVal;
 }
+/**
+ * @brief changes the size of the memory block pointed to by ptr to size bytes.
+ *        The contents will be unchanged in the range from the start of the region up to the minimum of the
+          old  and  new  sizes.   If  the new size is larger than the old size, the added memory will not be initialized. 
+          If ptr is NULL, then the call is equivalent to malloc(size),
+          if size is equal to zero, and ptr is not NULL, then the call is equivalent to free(ptr).
+ * 
+ * @param ptr pointer to the memory block to change its size
+ * @param size the new size wanted
+ * @return void* pointer to the new allocated memory, return NULL if the request is failed
+ */
 void *HmmRealloc(void *ptr, size_t size){
     void *retVal;
     block_t *temp=ptr;
-    temp--;
-    size_t oldSize=temp->size;
-    HmmFree(ptr);
-    retVal=HmmAlloc(size);
-    memcpy(retVal,ptr,oldSize);
-
+    //if ptr is NULL similar to malloc(size)
+    if(NULL==ptr){
+        retVal=HmmAlloc(size);
+    }
+    //if size is 0 similar to free(ptr)
+    else if(0==size && NULL!=ptr){
+        HmmFree(ptr);
+    }
+    //if ptr is not null and size is not zero
+    //find a new area for the new size then copy the old data to the new size 
+    //then free the old area
+    else{
+        temp--;
+        size_t oldSize=temp->size;
+        retVal=HmmAlloc(size);
+        memcpy(retVal,ptr,oldSize);
+        HmmFree(ptr);
+    }
+    return retVal;
 }
