@@ -27,7 +27,7 @@
  */
 #define INIT_PAGE_ALLOC     33
 
-/**
+/**s
  * @brief minumum amount of memory allocated on sbrk call
  * 
  */
@@ -50,7 +50,26 @@ void *HmmAlloc(size_t size);
  * @param ptr pointer to the space to be freed
  */
 void HmmFree(void *ptr);
+/**
+ * @brief allocates  memory for an array of nmemb elements of size bytes each and returns a pointer to the allocated memory.
+ *        The memory is set to zero.  If nmemb or size is 0 then returns NULL.
+ *  
+ * @param nmemb number of memory spaces want to allocate  
+ * @param size the size of each memory space to allocate
+ * @return void* pointer to the allocated memory, return NULL if the request is failed
+ */
 void *HmmCalloc(size_t nmemb, size_t size);
+/**
+ * @brief changes the size of the memory block pointed to by ptr to size bytes.
+ *        The contents will be unchanged in the range from the start of the region up to the minimum of the
+          old  and  new  sizes.   If  the new size is larger than the old size, the added memory will not be initialized. 
+          If ptr is NULL, then the call is equivalent to malloc(size),
+          if size is equal to zero, and ptr is not NULL, then the call is equivalent to free(ptr).
+ * 
+ * @param ptr pointer to the memory block to change its size
+ * @param size the new size wanted
+ * @return void* pointer to the new block allocated
+ */
 void *HmmRealloc(void *ptr, size_t size);
 
 #endif
