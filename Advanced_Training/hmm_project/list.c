@@ -109,7 +109,7 @@ Std_ReturnType new_alloc(block_t *list,size_t size){
 */
 
 void merge(block_t* block,size_t decSize){
-    Std_ReturnType retVal=0;
+    Std_ReturnType retVal=E_OK;
     //if the next block is also free block merge both blocks
     if(NULL!=(block->next) && FREE_BLOCK==(block->next)->status){
         //size of current block increased by size of the next block and its metadata
