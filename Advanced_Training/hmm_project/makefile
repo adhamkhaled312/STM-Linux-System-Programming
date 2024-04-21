@@ -12,13 +12,12 @@ list.o: list.c
 	gcc -c list.c
 
 libhmm.so: hmmdyn.o listdyn.o
-	gcc -shared -o libhmm.so hmmdyn.o listdyn.o
-	export LD_LIBRARY_PATH=./
+	gcc -shared -o libhmm.so hmmdyn.o listdyn.o  
 
 hmmdyn.o: hmm.c
-	gcc -c -fPIC hmm.c -o hmmdyn.o
+	gcc -c -fPIC hmm.c -o hmmdyn.o 
 listdyn.o: list.c
-	gcc -c -fPIC list.c -o listdyn.o
+	gcc -c -fPIC list.c -o listdyn.o 
 
 clean:
-	rm *.o
+	rm -f hmm.o list.o hmmdyn.o listdyn.o
