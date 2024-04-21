@@ -45,7 +45,7 @@ void *HmmAlloc(size_t size){
             curr=firstBlock;
             TRAVERSE_LIST(curr,size);
             //if a block with found the same size allocate it (mark it as not free)
-            if(size==(curr->size)&& FREE_BLOCK==curr->status){
+            if(size+sizeof(block_t)==(curr->size)&& FREE_BLOCK==curr->status){
                 SET_BLOCK_USED(curr);
                 retVal=(void*)((void*)curr+sizeof(block_t));
             }
