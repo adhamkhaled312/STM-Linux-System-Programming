@@ -15,6 +15,8 @@ block_t *firstBlock=NULL;
  * @return void* pointer to the allocated memory, return NULL if the request is failed
  */
 void *HmmAlloc(size_t size){
+    // allign allocated data to 8 bytes
+    size=((size+7)/8)*8;
     block_t *curr;
     void *retVal=NULL;
     Std_ReturnType temp;
@@ -155,9 +157,14 @@ void *HmmRealloc(void *ptr, size_t size){
     else{
         temp--;
         size_t oldSize=temp->size;
-        retVal=HmmAlloc(size);
-        memcpy(retVal,ptr,oldSize);
-        HmmFree(ptr);
+        if(oldSize>=size){
+            retVal=ptr;
+        }
+        else{
+            retVal=HmmAlloc(size);
+            memcpy(retVal,ptr,oldSize);
+            HmmFree(ptr);
+        }
     }
     return retVal;
 }
