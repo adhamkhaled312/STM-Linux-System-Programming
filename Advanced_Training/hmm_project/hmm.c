@@ -161,3 +161,26 @@ void *HmmRealloc(void *ptr, size_t size){
     }
     return retVal;
 }
+
+// to replace glibc hmm enable this part
+#if 0
+void * malloc(size_t size)
+{
+    return HmmAlloc(size);
+}
+
+void free(void *ptr)
+{
+    HmmFree(ptr);
+}
+
+void *calloc(size_t nmemb, size_t size)
+{
+	return HmmCalloc(nmemb,size);
+}
+
+void *realloc(void *ptr, size_t size)
+{
+	return HmmRealloc(ptr,size);
+}
+#endif

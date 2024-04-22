@@ -32,6 +32,22 @@
  * 
  */
 #define ALLOC_SPACE          (VM_PAGE_SIZE*INIT_PAGE_ALLOC)
+/**
+ * @brief enable replacing glibc hmm
+ * 
+ */
+#define REPLACE_ENABLE       1
+/**
+ * @brief disable replacing glibc hmm
+ * 
+ */
+#define REPLACE_DISABLE      0
+/**
+ * @brief enable/disable replacing glibc hmm
+ *        Options: REPLACE_ENABLE
+ *                 REPLACE_DISABLE
+ */
+#define REPLACE_GLIBC        REPLACE_ENABLE  
 /*----------------------Functions Declarations----------------------*/
 /**
  * @brief function allocates bytes in heap and returns a pointer to the allocated memory
