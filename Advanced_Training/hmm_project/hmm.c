@@ -163,7 +163,7 @@ void *HmmRealloc(void *ptr, size_t size){
 }
 
 // to replace glibc hmm enable this part
-#if 0
+#if REPLACE_GLIBC
 void * malloc(size_t size)
 {
     return HmmAlloc(size);
