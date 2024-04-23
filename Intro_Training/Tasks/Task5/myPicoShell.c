@@ -49,15 +49,15 @@ int main()
 	parse(input, &args, args_count, &input_redir, &output_redir, &error_redir);	//parse the input command into arguments
 	// The next part is for executing the commands
 	// we have built in commands so we will check on them first, if not found in them then execute external command
-	if (!strcmp(args[0], "pwd")) {
+	if (!strcmp(args[0], "mypwd")) {
 	    pwd(args, output_redir);
 	}
 	// check if current command is cd
-	else if (!strcmp("cd", args[0])) {
+	else if (!strcmp("mycd", args[0])) {
 	    cd(args[1]);
 	}
 	// check if current command is echo     
-	else if (!strcmp("echo", args[0])) {
+	else if (!strcmp("myecho", args[0])) {
 	    echo(args, output_redir);
 	}
 	//check if command is exit, get out of the shell
