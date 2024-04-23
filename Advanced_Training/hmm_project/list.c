@@ -9,24 +9,25 @@ static char moveBrkDown(block_t *block,size_t decSize);
 /**
  * @brief initialize the list if there's is no allocation before
  * 
- * @param list pointer to the first entry of the list
+ * @param firstBlock pointer to the first entry of the list
  * @param size the size to be allocated at the beginning
  * @return Std_ReturnType status of the process
  *         (E_OK): The function is done successfully
  *         (E_NOT_OK): The function had issue to perform this action  
  */
-Std_ReturnType init(block_t **list,size_t size){
+Std_ReturnType init(block_t **firstBlock,size_t size){
     Std_ReturnType retVal=E_OK;
-    (*list)=(void *)sbrk(size);
-    if((void*)-1==list){
+    (*firstBlock)=(void *)sbrk(size);
+    if((void*)-1==firstBlock){
         perror("Can't initialize the heap");
         retVal=E_NOT_OK;
     }
     else{
-        (*list)->next=NULL;
-        (*list)->prev=NULL;
-        (*list)->size=(size-sizeof(block_t));
-        (*list)->status=FREE_BLOCK;
+        //initialize the first node in the list
+        (*firstBlock)->next=NULL;
+        (*firstBlock)->prev=NULL;
+        (*firstBlock)->size=(size-sizeof(block_t));
+        (*firstBlock)->status=FREE_BLOCK;
         retVal=E_OK;
     }
     return retVal;
@@ -61,16 +62,16 @@ void split(block_t *fitting,size_t size){
 /**
  * @brief used to allocate new space in heap if the current allocated space isn't enough
  *        first check if the block is free then extend it, if used then allocate new space
- * @param list pointer to the last block in the current free list
+ * @param lastBlock pointer to the last block in the current free list
  * @param size the size to be allocated
  * @return Std_ReturnType status of the process
  *         (E_OK): The function is done successfully
  *         (E_NOT_OK): The function had issue to perform this action  
  */
-Std_ReturnType new_alloc(block_t *list,size_t size){
+Std_ReturnType new_alloc(block_t *lastBlock,size_t size){
     Std_ReturnType retVal=E_OK;
     //if the last block in the list is free then extend it so it can hold the data
-    if(FREE_BLOCK==list->status){
+    if(FREE_BLOCK==lastBlock->status){
         void*temp=sbrk(size);
         if((void *)-1==temp){
             perror("Can't allocate new space");
@@ -78,7 +79,7 @@ Std_ReturnType new_alloc(block_t *list,size_t size){
     }
         else{
             //the size of the block will be the current size + the extended space size
-            list->size+=size;
+            lastBlock->size+=size;
             retVal=E_OK;
     }
     }
@@ -91,11 +92,11 @@ Std_ReturnType new_alloc(block_t *list,size_t size){
         }
         else{
             //configure new block metadata and point from the current block to it
-            new->prev=list;
+            new->prev=lastBlock;
             new->size=size-sizeof(block_t);
             new->next=NULL;
             new->status=FREE_BLOCK;
-            list->next=new;
+            lastBlock->next=new;
             retVal=E_OK;
         }
     }
