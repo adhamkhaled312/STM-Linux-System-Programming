@@ -153,35 +153,37 @@ void merge(block_t* block,size_t decSize){
  *         (E_OK): The function is done successfully
  *         (E_NOT_OK): The function had issue to perform this action  
  */
-static Std_ReturnType moveBrkDown(block_t *block,size_t decSize){
+static Std_ReturnType moveBrkDown(block_t *lastBlock,size_t decSize){
     void *temp;
     Std_ReturnType retVal=0;
     //move sbrk down with sufficient multiple of decSize 
     // in order not to call sbrk on the next free
     // and also leave some space (if that can be done) so next malloc may not call sbrk
-    size_t remaining=block->size-((block->size)/decSize)*decSize;
-    size_t decValue=((block->size)/decSize)*decSize;
+    size_t remaining=lastBlock->size-((lastBlock->size)/decSize)*decSize;
+    size_t decValue=((lastBlock->size)/decSize)*decSize;
     //if the block size is exactly size multiple of decSize
     //remove the last block
     if(0==remaining){
-        block->prev->next=NULL;
         temp=sbrk(-((decValue)+sizeof(block_t)));
         if((void *)-1==temp){
             retVal=E_NOT_OK;
         }
         else{
+            //only remove last block if program break decreased
+            lastBlock->prev->next=NULL;
             retVal=E_OK;
         }
     }
     //if the remaining size isn't 0 
     //just change the size of last block
     else{
-        block->size=remaining;
         temp=sbrk(-(decValue));
             if((void *)-1==temp){
             retVal=E_NOT_OK;
         }
         else{
+            //only decrease its size of program break decreased
+            lastBlock->size=remaining;
             retVal=E_OK;
         }
     }
