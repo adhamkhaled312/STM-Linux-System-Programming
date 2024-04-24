@@ -23,9 +23,9 @@ void *realloc(void *ptr, size_t size)
 	return HmmRealloc(ptr,size);
 }
 
-#define NUM_ALLOCS 1000
+#define NUM_ALLOCS 10000
 #define MAX_SIZE 10240
-#define MAX_ITERATIONS 1000
+#define MAX_ITERATIONS 10000
 
 void random_alloc_free_test() {
     srand((unsigned int)time(NULL));
