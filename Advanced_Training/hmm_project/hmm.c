@@ -61,6 +61,7 @@ void *HmmAlloc(size_t size){
                 if(USED_BLOCK==curr->status){
                     curr=curr->next;
                 }
+                //split the new allocated space
                 split(curr,size);
                 retVal=(void *)((void*)curr+sizeof(block_t));
             }
@@ -110,7 +111,7 @@ void *HmmCalloc(size_t nmemb, size_t size){
         retVal=NULL;
     }
     //if there multiplication caused overflow return NULL
-    else if(nmemb*size<0){
+    else if(nmemb*size==0){
         perror("Overflow occured");
         retVal=NULL;
     }
@@ -133,7 +134,7 @@ void *HmmCalloc(size_t nmemb, size_t size){
  * @return void* pointer to the new allocated memory, return NULL if the request is failed
  */
 void *HmmRealloc(void *ptr, size_t size){
-    void *retVal;
+    void *retVal=NULL;
     block_t *temp=ptr;
     //if ptr is NULL similar to malloc(size)
     if(NULL==ptr){
