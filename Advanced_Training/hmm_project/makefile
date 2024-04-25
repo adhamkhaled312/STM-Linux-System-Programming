@@ -1,23 +1,27 @@
-static: libhmm.a
+CC=gcc
+LIBNAME=libhmm
 
-dynamic: libhmm.so
 
-libhmm.a: hmm.o list.o
-	ar -rs libhmm.a hmm.o list.o
+static: $(LIBNAME).a
+
+dynamic: $(LIBNAME).so
+
+$(LIBNAME).a: hmm.o list.o
+	ar -rs $@  $^
 
 hmm.o: hmm.c
-	gcc -c hmm.c
+	$(CC) -c $^
 
 list.o: list.c
-	gcc -c list.c
+	$(CC) -c $^
 
-libhmm.so: hmmdyn.o listdyn.o
-	gcc -shared -o libhmm.so hmmdyn.o listdyn.o
+$(LIBNAME).so: hmmdyn.o listdyn.o
+	$(CC) -shared -o $@ $^
 
 hmmdyn.o: hmm.c
-	gcc -c -fPIC hmm.c -o hmmdyn.o 
+	$(CC) -c -fPIC $^ -o $@ 
 listdyn.o: list.c
-	gcc -c -fPIC list.c -o listdyn.o 
+	$(CC) -c -fPIC $^ -o $@ 
 
 clean:
 	rm -f hmm.o list.o hmmdyn.o listdyn.o
