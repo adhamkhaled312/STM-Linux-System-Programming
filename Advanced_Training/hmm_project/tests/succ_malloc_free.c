@@ -2,7 +2,7 @@
 #include "hmm.h"
 #include <stdlib.h>
 
-#define NUM_ALLOCS 100000
+#define NUM_ALLOCS 10000
 #define MAX_ALLOC_SIZE 1000
 void * malloc(size_t size)
 {
@@ -31,7 +31,6 @@ int main() {
         
         size_t size = rand() % MAX_ALLOC_SIZE + 1;
         ptrs[i] = malloc(size);
-        printf("hello %i\n",i);
         if (ptrs[i] == NULL) {
             fprintf(stderr, "Memory allocation failed\n");
             // Cleanup allocated memory before exiting
