@@ -5,7 +5,7 @@
 /******************************************************/
 #include "hmm.h"
 // Pointer to the first block allocated in the heap 
-block_t *firstBlock=NULL;
+static block_t *firstBlock=NULL;
  
 /**
  * @brief function allocates bytes in heap and returns a pointer to the allocated memory
