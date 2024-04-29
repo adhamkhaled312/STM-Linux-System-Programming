@@ -145,14 +145,16 @@ void *HmmRealloc(void *ptr, size_t size){
         HmmFree(ptr);
     }
     //if ptr is not null and size is not zero
-    //find a new area for the new size then copy the old data to the new size 
-    //then free the old area
+    //check the size of the new block is smaller or bigger than the current block
     else{
         temp--;
         size_t oldSize=temp->size;
+        //if the user want to decrease the size of the current block then just split it
         if(oldSize>=size){
+            split(temp,size);
             retVal=ptr;
         }
+        //if the user want a bigger block then search for a block then copy the data to it and free the old block
         else{
             retVal=HmmAlloc(size);
             memcpy(retVal,ptr,oldSize);
